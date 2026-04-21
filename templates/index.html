@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanHoras — Control de Horas por Asignatura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0d1117;
+            --cream: #f8f4ee;
+            --gold: #b8922a;
+            --gold-light: #e8d5a3;
+            --teal: #1a4a4a;
+            --teal-light: #2d7070;
+            --mist: #e4dfd6;
+            --paper: #fdfaf5;
+            --rust: #8b3a1e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Fondo sutil */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 15% 85%, rgba(184,146,42,0.09) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 85% 15%, rgba(26,74,74,0.07) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ---- NAV ---- */
+        nav {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.4rem 3rem;
+            border-bottom: 1px solid var(--mist);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: -0.01em;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--gold); }
+
+        .nav-cta {
+            display: inline-block;
+            text-decoration: none;
+            padding: 0.55rem 1.5rem;
+            background: var(--teal);
+            color: var(--cream);
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover { background: var(--teal-light); }
+
+        .nav-logo-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 68px);
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5rem 4rem 5rem 3rem;
+            border-right: 1px solid var(--mist);
+        }
+
+        .eyebrow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .eyebrow::before {
+            content: '';
+            width: 2.5rem;
+            height: 1.5px;
+            background: var(--gold);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(3.2rem, 5vw, 5.8rem);
+            line-height: 1.0;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+        }
+
+        h1 strong {
+            font-weight: 700;
+            display: block;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--teal);
+            display: block;
+        }
+
+        .desc {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #5a5550;
+            max-width: 400px;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            background: var(--ink);
+            color: var(--cream);
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            width: fit-content;
+        }
+
+        .btn-main:hover {
+            background: var(--teal);
+            transform: translateX(4px);
+        }
+
+        .btn-main svg {
+            transition: transform 0.2s;
+        }
+
+        .btn-main:hover svg { transform: translateX(4px); }
+
+        .counters {
+            display: flex;
+            gap: 2.5rem;
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--mist);
+        }
+
+        .counter-item { display: flex; flex-direction: column; gap: 0.2rem; }
+
+        .counter-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--teal);
+        }
+
+        .counter-lbl {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        /* ---- PREVIEW PANEL ---- */
+        .hero-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 3rem;
+            background: var(--paper);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-right::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184,146,42,0.06) 0%, transparent 70%);
+        }
+
+        .doc-mockup {
+            width: 360px;
+            background: white;
+            box-shadow:
+                0 1px 3px rgba(0,0,0,0.05),
+                0 10px 30px rgba(0,0,0,0.10),
+                0 30px 70px rgba(0,0,0,0.07);
+            animation: floatMockup 5s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes floatMockup {
+            0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+            50% { transform: translateY(-14px) rotate(-1.5deg); }
+        }
+
+        .mockup-header {
+            background: var(--teal);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .m-inst {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .m-sub {
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 0.2rem;
+        }
+
+        .m-badge {
+            background: var(--gold);
+            color: var(--ink);
+            padding: 0.3rem 0.6rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .mockup-prog {
+            background: var(--gold-light);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--teal);
+        }
+
+        .mockup-table {
+            padding: 0.8rem 1.5rem;
+        }
+
+        .m-th-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            border-bottom: 1.5px solid var(--ink);
+            margin-bottom: 0.3rem;
+        }
+
+        .m-th {
+            font-size: 0.52rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #888;
+        }
+
+        .m-th:not(:first-child) { text-align: center; }
+
+        .m-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #f0ede8;
+            align-items: center;
+        }
+
+        .m-asig { font-size: 0.62rem; color: #333; }
+
+        .m-h {
+            font-size: 0.62rem;
+            text-align: center;
+            color: #555;
+        }
+
+        .m-prom {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--teal);
+            text-align: center;
+            background: rgba(26,74,74,0.08);
+            padding: 0.1rem 0.3rem;
+        }
+
+        .m-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gold);
+            margin: 0 auto;
+        }
+
+        .mockup-footer {
+            background: var(--ink);
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .m-total-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 0.1em; text-transform: uppercase; }
+        .m-total-val { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold-light); }
+
+        /* ---- FEATURES ---- */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 5rem 3rem;
+            border-top: 1px solid var(--mist);
+        }
+
+        .features-head {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .features-head h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .features-head p {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .feat-card {
+            padding: 2rem 1.8rem;
+            border: 1px solid var(--mist);
+            background: var(--paper);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--teal);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .feat-card:hover::after { transform: scaleX(1); }
+        .feat-card:hover { border-color: rgba(26,74,74,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+        .feat-icon {
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .feat-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.7rem;
+        }
+
+        .feat-card p {
+            font-size: 0.82rem;
+            color: #666;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 1.8rem;
+            border-top: 1px solid var(--mist);
+            font-size: 0.72rem;
+            color: #aaa;
+        }
+
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; }
+            .hero-right { display: none; }
+            .hero-left { padding: 3rem 1.5rem; }
+            nav { padding: 1rem 1.5rem; }
+            .features-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">Plan<span>Horas</span></a>
+        <div style="display: flex; gap: 2rem; align-items: center;">
+            <a href="/boletin" class="nav-cta">Crear Boletín</a>
+            <div class="nav-logo-container">
+                <img src="/static/logo.png" alt="Colegio Gonzalo Rivera Laguado">
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-left">
+            <div class="eyebrow">Control Académico de Horas</div>
+            <h1>
+                <strong>Boletín</strong>
+                de horas por
+                <em>asignatura</em>
+            </h1>
+            <p class="desc">
+                Registra, controla y genera reportes de las horas dictadas por cada asignatura 
+                a lo largo de los períodos. Calcula promedios automáticamente e imprime 
+                boletines oficiales con un solo clic.
+            </p>
+            <a href="/boletin" class="btn-main">
+                <span>Crear Boletín</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <div class="counters">
+                <div class="counter-item">
+                    <div class="counter-num">∞</div>
+                    <div class="counter-lbl">Asignaturas</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-num">4</div>
+                    <div class="counter-lbl">Períodos</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-num">PDF</div>
+                    <div class="counter-lbl">Imprimible</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="doc-mockup">
+                <div class="mockup-header">
+                    <div>
+                        <div class="m-inst">Instituto Educativo Ejemplo</div>
+                        <div class="m-sub">Control de Horas · 2024–2025</div>
+                    </div>
+                    <div class="m-badge">Plan de Horas</div>
+                </div>
+                <div class="mockup-prog">Programa: Bachillerato en Ciencias</div>
+                <div class="mockup-table">
+                    <div class="m-th-row">
+                        <div class="m-th">Asignatura</div>
+                        <div class="m-th">P1</div>
+                        <div class="m-th">P2</div>
+                        <div class="m-th">Prom.</div>
+                    </div>
+                    <div class="m-row">
+                        <div class="m-asig">Matemáticas</div>
+                        <div class="m-h">40h</div>
+                        <div class="m-h">42h</div>
+                        <div class="m-prom">41h</div>
+                    </div>
+                    <div class="m-row">
+                        <div class="m-asig">Lengua Española</div>
+                        <div class="m-h">36h</div>
+                        <div class="m-h">38h</div>
+                        <div class="m-prom">37h</div>
+                    </div>
+                    <div class="m-row">
+                        <div class="m-asig">Ciencias Naturales</div>
+                        <div class="m-h">32h</div>
+                        <div class="m-h">30h</div>
+                        <div class="m-prom">31h</div>
+                    </div>
+                    <div class="m-row">
+                        <div class="m-asig">Historia y Geografía</div>
+                        <div class="m-h">28h</div>
+                        <div class="m-h">30h</div>
+                        <div class="m-prom">29h</div>
+                    </div>
+                    <div class="m-row">
+                        <div class="m-asig">Inglés</div>
+                        <div class="m-h">24h</div>
+                        <div class="m-h">24h</div>
+                        <div class="m-prom">24h</div>
+                    </div>
+                </div>
+                <div class="mockup-footer">
+                    <div>
+                        <div class="m-total-lbl">Promedio General</div>
+                        <div class="m-total-val">32.4h / período</div>
+                    </div>
+                    <div class="m-badge" style="font-size:0.55rem;">2 períodos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-head">
+            <p class="eyebrow" style="justify-content:center;">Funcionalidades</p>
+            <h2>Todo lo que necesitas</h2>
+            <p>Control de horas simplificado para docentes y coordinadores académicos</p>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-icon">📚</div>
+                <h3>Gestión por Asignatura</h3>
+                <p>Registra múltiples asignaturas con su docente responsable y las horas dictadas en cada período académico.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon">📊</div>
+                <h3>Promedio Automático</h3>
+                <p>Calcula automáticamente el promedio de horas por período para cada asignatura y el promedio general del plan.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon">🖨️</div>
+                <h3>Boletín Imprimible</h3>
+                <p>Genera un boletín oficial listo para imprimir en formato A4 con tabla detallada, estadísticas y distribución visual.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>PlanHoras — Sistema de Control de Horas por Asignatura</p>
+    </footer>
+</body>
+</html>

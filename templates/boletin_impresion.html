@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín de Horas — {{ institucion }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background: white;
+            color: #0d1117;
+            font-size: 10.5pt;
+        }
+
+        @page {
+            size: A4;
+            margin: 1.5cm 1.8cm;
+        }
+
+        @media print {
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+
+        .page {
+            width: 100%;
+            max-width: 21cm;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* ---- HEADER ---- */
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            background: #1a4a4a;
+            color: white;
+            position: relative;
+        }
+
+        .header-main {
+            padding: 1.4rem 2rem;
+            flex: 1;
+        }
+
+        .header-inst {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20pt;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .header-sub {
+            font-size: 7.5pt;
+            opacity: 0.5;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+        }
+
+        .header-badge {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #b8922a;
+            color: #0d1117;
+            padding: 1rem 1.6rem;
+            min-width: 110px;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge-label {
+            font-size: 6.5pt;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            opacity: 0.8;
+        }
+
+        .badge-year {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13pt;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .header-logo {
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 1.5rem;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media print {
+            .watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 120px;
+                opacity: 0.08;
+                color: #000;
+                pointer-events: none;
+                z-index: -1;
+            }
+            .watermark img {
+                width: 600px;
+                opacity: 0.08;
+                z-index: -1;
+            }
+        }
+
+        /* ---- PROGRAMA STRIP ---- */
+        .programa-strip {
+            background: #e8d5a3;
+            padding: 0.55rem 2rem;
+            font-size: 7.5pt;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #1a4a4a;
+            border-bottom: 2px solid #0d1117;
+        }
+
+        /* ---- INFO ROW ---- */
+        .info-row {
+            display: flex;
+            gap: 2.5rem;
+            padding: 0.7rem 2rem;
+            background: #f8f4ee;
+            border-bottom: 1px solid #e4dfd6;
+        }
+
+        .info-field { display: flex; flex-direction: column; gap: 0.1rem; }
+
+        .info-label {
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 10pt;
+            font-weight: 500;
+            color: #0d1117;
+        }
+
+        /* ---- TITLE BAR ---- */
+        .title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 2rem;
+            background: white;
+            border-bottom: 1px solid #e4dfd6;
+        }
+
+        .title-main {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12.5pt;
+            font-weight: 700;
+            color: #0d1117;
+        }
+
+        .title-date {
+            font-size: 7.5pt;
+            color: #aaa;
+            letter-spacing: 0.06em;
+        }
+
+        /* ---- CONTENT ---- */
+        .content-area { padding: 1.2rem 2rem; }
+
+        .section-label {
+            font-size: 6.5pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ---- TABLE ---- */
+        table.hours-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hours-table thead tr {
+            background: #1a4a4a;
+        }
+
+        .hours-table thead th {
+            color: white;
+            font-size: 7pt;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.55rem 0.8rem;
+            text-align: left;
+        }
+
+        .hours-table thead th.th-period {
+            text-align: center;
+            background: #2d7070;
+            min-width: 65px;
+        }
+
+        .hours-table thead th.th-prom {
+            text-align: center;
+            background: #b8922a;
+            color: #0d1117;
+            min-width: 65px;
+        }
+
+        .hours-table thead th.th-num {
+            width: 28px;
+            text-align: center;
+        }
+
+        .hours-table tbody tr {
+            border-bottom: 1px solid #ece8e0;
+        }
+
+        .hours-table tbody tr:nth-child(even) {
+            background: #fdfaf5;
+        }
+
+        .hours-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .hours-table td {
+            padding: 0.55rem 0.8rem;
+            font-size: 9.5pt;
+            vertical-align: middle;
+        }
+
+        .td-num {
+            color: #ccc;
+            font-size: 7.5pt;
+            text-align: center;
+        }
+
+        .td-subject { font-weight: 400; }
+
+        .td-teacher {
+            color: #777;
+            font-size: 8.5pt;
+        }
+
+        .td-hours {
+            text-align: center;
+            color: #444;
+        }
+
+        .td-prom {
+            text-align: center;
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a4a4a;
+            background: rgba(184,146,42,0.08);
+        }
+
+        /* ---- TOTAL ROW ---- */
+        .total-row {
+            background: #0d1117;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 0.8rem 0.9rem 2.2rem;
+            margin-top: 0.8rem;
+        }
+
+        .total-label {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            opacity: 0.7;
+        }
+
+        .total-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16pt;
+            font-weight: 700;
+            color: #e8d5a3;
+            line-height: 1;
+        }
+
+        .total-value span {
+            font-size: 9pt;
+            opacity: 0.7;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            margin-left: 0.3rem;
+        }
+
+        /* ---- STATS ROW ---- */
+        .stats-row {
+            display: flex;
+            gap: 0;
+            margin-top: 1rem;
+            border: 1px solid #e4dfd6;
+        }
+
+        .stat-box {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            border-right: 1px solid #e4dfd6;
+            text-align: center;
+        }
+
+        .stat-box:last-child { border-right: none; }
+
+        .stat-box-label {
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-box-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18pt;
+            font-weight: 700;
+            color: #1a4a4a;
+            line-height: 1;
+        }
+
+        .stat-box-sub {
+            font-size: 7pt;
+            color: #aaa;
+            margin-top: 0.2rem;
+        }
+
+        /* ---- DISTRIBUTION ---- */
+        .distribution-section {
+            margin-top: 1.2rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e4dfd6;
+        }
+
+        .dist-title {
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #aaa;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .dist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .dist-name {
+            font-size: 8.5pt;
+            width: 130px;
+            flex-shrink: 0;
+            color: #444;
+        }
+
+        .dist-track {
+            flex: 1;
+            height: 6px;
+            background: #ece8e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .dist-fill {
+            height: 100%;
+            background: #1a4a4a;
+            border-radius: 3px;
+        }
+
+        .dist-val {
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: #1a4a4a;
+            width: 35px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .dist-pct {
+            font-size: 7.5pt;
+            color: #aaa;
+            width: 35px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* ---- OBSERVATIONS ---- */
+        .obs-section { margin-top: 1rem; }
+
+        .obs-box {
+            background: #f8f4ee;
+            border-left: 3px solid #1a4a4a;
+            padding: 0.8rem 1rem;
+        }
+
+        .obs-label {
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #1a4a4a;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .obs-text {
+            font-size: 9pt;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        /* ---- SIGNATURES ---- */
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2.5rem;
+            page-break-inside: avoid;
+        }
+
+        .sig-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            flex: 1;
+        }
+
+        .sig-space { height: 1.8cm; }
+
+        .sig-line {
+            width: 100%;
+            max-width: 130px;
+            height: 1px;
+            background: #0d1117;
+        }
+
+        .sig-label {
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #777;
+            text-align: center;
+        }
+
+        /* ---- FOOTER ---- */
+        .doc-footer {
+            margin-top: 1.5rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid #e4dfd6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-text { font-size: 6.5pt; color: #bbb; letter-spacing: 0.06em; }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8pt;
+            font-weight: 700;
+            color: #ccc;
+        }
+
+        .footer-logo span { color: #b8922a; }
+
+        /* ---- PRINT BUTTON ---- */
+        .print-btn-wrap {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f4ee;
+        }
+
+        .print-btn {
+            padding: 0.9rem 3rem;
+            background: #1a4a4a;
+            color: white;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .print-btn:hover { background: #2d7070; }
+    </style>
+</head>
+<body>
+    <div class="no-print print-btn-wrap">
+        <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+
+    <div class="page">
+
+        <!-- ENCABEZADO -->
+        <div class="doc-header">
+            <div class="header-main">
+                <div class="header-inst">{{ institucion or 'Institución Educativa' }}</div>
+                <div class="header-sub">Boletín Oficial · Control de Horas por Asignatura</div>
+            </div>
+            <div class="header-badge">
+                <div class="badge-label">Plan de Horas</div>
+                <div class="badge-year">{{ anio }}</div>
+            </div>
+        </div>
+
+        <!-- PROGRAMA -->
+        {% if programa %}
+        <div class="programa-strip">{{ programa }}</div>
+        {% endif %}
+
+        <!-- DATOS GENERALES -->
+        <div class="info-row">
+            {% if responsable %}
+            <div class="info-field">
+                <div class="info-label">Responsable</div>
+                <div class="info-value">{{ responsable }}</div>
+            </div>
+            {% endif %}
+            <div class="info-field">
+                <div class="info-label">Año Académico</div>
+                <div class="info-value">{{ anio }}</div>
+            </div>
+            <div class="info-field">
+                <div class="info-label">N° de Períodos</div>
+                <div class="info-value">{{ num_periodos }}</div>
+            </div>
+            <div class="info-field" style="margin-left:auto;">
+                <div class="info-label">Promedio General</div>
+                <div class="info-value" style="color:#1a4a4a;font-weight:700;">{{ promedio_general }}h / período</div>
+            </div>
+        </div>
+
+        <!-- BARRA DE TÍTULO -->
+        <div class="title-bar">
+            <div class="title-main">Registro de Horas por Asignatura</div>
+            <div class="title-date">Emitido el {{ fecha }}</div>
+        </div>
+
+        <!-- CONTENIDO -->
+        <div class="content-area">
+
+            <!-- TABLA DE ASIGNATURAS -->
+            <div class="section-label">Detalle por Asignatura · Período</div>
+            <table class="hours-table">
+                <thead>
+                    <tr>
+                        <th class="th-num">#</th>
+                        <th>Asignatura</th>
+                        <th>Docente</th>
+                        {% for p in periodos %}
+                        <th class="th-period">{{ p }}</th>
+                        {% endfor %}
+                        <th class="th-prom">Promedio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in asignaturas %}
+                    <tr>
+                        <td class="td-num">{{ loop.index }}</td>
+                        <td class="td-subject">{{ s.name }}</td>
+                        <td class="td-teacher">{{ s.teacher or '—' }}</td>
+                        {% for h in s.horas %}
+                        <td class="td-hours">{{ h if h != '' and h is not none else '—' }}{% if h != '' and h is not none %}h{% endif %}</td>
+                        {% endfor %}
+                        <td class="td-prom">{{ s.promedio }}h</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ 3 + num_periodos + 1 }}" style="text-align:center;color:#bbb;padding:1.5rem;font-size:9pt;">
+                            Sin asignaturas registradas
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- TOTAL / PROMEDIO GENERAL -->
+            <div class="total-row">
+                <span class="total-label">Promedio General del Plan de Estudios</span>
+                <span class="total-value">{{ promedio_general }}<span>horas / período</span></span>
+            </div>
+
+            <!-- ESTADÍSTICAS -->
+            {% if asignaturas|length > 0 %}
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-box-label">Total de Asignaturas</div>
+                    <div class="stat-box-value">{{ asignaturas|length }}</div>
+                    <div class="stat-box-sub">Registradas en el plan</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Total de Períodos</div>
+                    <div class="stat-box-value">{{ num_periodos }}</div>
+                    <div class="stat-box-sub">Períodos evaluados</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Promedio General</div>
+                    <div class="stat-box-value">{{ promedio_general }}h</div>
+                    <div class="stat-box-sub">Horas por período</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Mayor Carga Horaria</div>
+                    {% set max_prom = asignaturas | map(attribute='promedio') | max %}
+                    <div class="stat-box-value">{{ max_prom }}h</div>
+                    <div class="stat-box-sub">
+                        {% for s in asignaturas %}{% if s.promedio == max_prom %}{{ s.name }}{% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISTRIBUCIÓN -->
+            {% if asignaturas|length > 1 %}
+            <div class="distribution-section">
+                <div class="dist-title">Distribución de Horas Promedio por Asignatura</div>
+                {% set max_prom2 = asignaturas | map(attribute='promedio') | max %}
+                {% set total_prom = asignaturas | map(attribute='promedio') | sum %}
+                {% for s in asignaturas %}
+                {% set bar_w = (s.promedio / max_prom2 * 100) if max_prom2 > 0 else 0 %}
+                {% set pct = ((s.promedio / total_prom) * 100)|round(1) if total_prom > 0 else 0 %}
+                <div class="dist-item">
+                    <span class="dist-name">{{ s.name }}</span>
+                    <div class="dist-track">
+                        <div class="dist-fill" style="width:{{ bar_w }}%"></div>
+                    </div>
+                    <span class="dist-val">{{ s.promedio }}h</span>
+                    <span class="dist-pct">{{ pct }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- OBSERVACIONES -->
+            {% if observaciones %}
+            <div class="obs-section">
+                <div class="obs-box">
+                    <div class="obs-label">Observaciones</div>
+                    <div class="obs-text">{{ observaciones }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- FIRMAS -->
+            <div class="signatures">
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Director / Directora</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Coordinador/a Académico/a</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Visto Bueno Institucional</div>
+                </div>
+            </div>
+
+            <!-- PIE DE PÁGINA -->
+            <div class="doc-footer">
+                <span class="footer-text">{{ institucion }} · {{ programa }} · Año {{ anio }} · Emitido {{ fecha }}</span>
+                <span class="footer-logo">Plan<span>Horas</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="no-print print-btn-wrap" style="padding-top:0;padding-bottom:3rem;">
+        <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+</body>
+</html>

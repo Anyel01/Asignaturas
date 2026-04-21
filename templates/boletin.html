@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Boletín — PlanHoras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0d1117;
+            --cream: #f8f4ee;
+            --gold: #b8922a;
+            --gold-light: #e8d5a3;
+            --teal: #1a4a4a;
+            --teal-light: #2d7070;
+            --mist: #e4dfd6;
+            --paper: #fdfaf5;
+            --rust: #8b3a1e;
+            --success: #1a4a4a;
+            --warn: #8b3a1e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 50% 40% at 10% 85%, rgba(184,146,42,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 90% 10%, rgba(26,74,74,0.06) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            border-bottom: 1px solid var(--mist);
+            background: rgba(248,244,238,0.92);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-decoration: none;
+            color: var(--ink);
+        }
+        .logo span { color: var(--gold); }
+
+        .nav-actions { display: flex; gap: 0.6rem; }
+
+        .btn {
+            padding: 0.5rem 1.1rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--ink); color: var(--cream); }
+        .btn.primary { background: var(--teal); color: white; border-color: var(--teal); }
+        .btn.primary:hover { background: var(--teal-light); border-color: var(--teal-light); }
+        .btn.gold { background: var(--gold); color: white; border-color: var(--gold); }
+        .btn.gold:hover { background: #a07820; border-color: #a07820; }
+
+        .main-layout {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 440px;
+            min-height: calc(100vh - 58px);
+        }
+
+        .form-panel {
+            padding: 2.5rem 3rem;
+            border-right: 1px solid var(--mist);
+            overflow-y: auto;
+        }
+
+        .panel-header { margin-bottom: 2.5rem; }
+
+        .eyebrow {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .eyebrow::before {
+            content: '';
+            width: 1.5rem;
+            height: 1.5px;
+            background: var(--gold);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .form-section { margin-bottom: 2.5rem; }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--mist);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-title .num {
+            width: 22px;
+            height: 22px;
+            background: var(--teal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-grid.full { grid-template-columns: 1fr; }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .field.span-2 { grid-column: span 2; }
+
+        label {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #777;
+        }
+
+        input, select, textarea {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            padding: 0.65rem 0.85rem;
+            background: var(--paper);
+            border: 1px solid var(--mist);
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(26,74,74,0.08);
+        }
+        textarea { resize: vertical; min-height: 75px; }
+
+        .periods-config {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1rem 1.2rem;
+            background: var(--paper);
+            border: 1px solid var(--mist);
+            margin-bottom: 1.2rem;
+        }
+        .periods-config label { font-size: 0.75rem; white-space: nowrap; margin-bottom: 0; letter-spacing: 0.05em; text-transform: none; color: var(--ink); font-weight: 400; }
+        .period-count-input { width: 70px; text-align: center; font-size: 1rem; font-weight: 600; padding: 0.4rem 0.5rem; }
+
+        .period-names-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .period-name-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            min-width: 100px;
+        }
+        .period-name-field label { font-size: 0.6rem; color: var(--teal); }
+        .period-name-field input { padding: 0.4rem 0.6rem; font-size: 0.78rem; border-color: rgba(26,74,74,0.25); width: 100%; }
+
+        .subjects-toolbar { display: flex; gap: 0.6rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+        .table-scroll { overflow-x: auto; }
+
+        table.subjects-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        .subjects-table thead tr { background: var(--teal); }
+        .subjects-table thead th {
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.6rem 0.7rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .subjects-table thead th.period-th { text-align: center; background: var(--teal-light); min-width: 75px; }
+        .subjects-table thead th.prom-th { text-align: center; background: var(--gold); color: var(--ink); min-width: 70px; }
+        .subjects-table tbody tr { border-bottom: 1px solid var(--mist); transition: background 0.15s; }
+        .subjects-table tbody tr:hover { background: rgba(26,74,74,0.03); }
+        .subjects-table tbody tr:nth-child(even) { background: rgba(253,250,245,0.7); }
+        .subjects-table tbody tr:nth-child(even):hover { background: rgba(26,74,74,0.04); }
+        .subjects-table td { padding: 0.4rem 0.5rem; vertical-align: middle; }
+        .td-num { color: #ccc; font-size: 0.7rem; text-align: center; width: 28px; }
+        .subjects-table td input { border: 1px solid transparent; background: transparent; padding: 0.35rem 0.5rem; font-size: 0.82rem; }
+        .subjects-table td input:focus { background: white; border-color: var(--teal); }
+        .hours-input { text-align: center; width: 70px; font-weight: 500; }
+        .prom-cell { text-align: center; font-weight: 700; font-size: 0.85rem; color: var(--teal); background: rgba(184,146,42,0.08); padding: 0.4rem 0.7rem; }
+
+        .btn-delete {
+            width: 22px; height: 22px;
+            background: none; border: 1px solid #ddd; color: #aaa;
+            cursor: pointer; font-size: 0.7rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .btn-delete:hover { background: var(--rust); border-color: var(--rust); color: white; }
+
+        .subjects-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 0;
+            margin-top: 0.5rem;
+            border-top: 1.5px solid var(--ink);
+        }
+        .total-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #666; }
+        .total-prom { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; color: var(--teal); }
+
+        /* PREVIEW PANEL */
+        .preview-panel {
+            background: var(--paper);
+            overflow-y: auto;
+            position: sticky;
+            top: 58px;
+            height: calc(100vh - 58px);
+        }
+        .preview-header {
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid var(--mist);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .preview-title { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #888; }
+        .live-dot { width: 7px; height: 7px; background: #2ecc71; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        .preview-content { padding: 1.5rem; }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 1rem; color: #bbb; }
+        .empty-state .icon { font-size: 2.5rem; opacity: 0.4; }
+        .empty-state p { font-size: 0.82rem; text-align: center; line-height: 1.6; }
+
+        .doc-sheet { background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); font-size: 0.72rem; overflow: hidden; }
+        .doc-sheet-header { background: var(--teal); color: white; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+        .doc-inst { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; }
+        .doc-period { font-size: 0.6rem; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2rem; }
+        .doc-badge { background: var(--gold); color: var(--ink); padding: 0.25rem 0.6rem; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+        .doc-prog-strip { background: var(--gold-light); padding: 0.5rem 1.2rem; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); }
+        .doc-sheet-body { padding: 1rem 1.2rem; }
+        .doc-meta { display: flex; gap: 1.5rem; margin-bottom: 0.8rem; }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 0.15rem; }
+        .doc-meta-item label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: #aaa; font-weight: 500; }
+        .doc-meta-item .val { font-size: 0.78rem; font-weight: 500; }
+        .doc-divider { height: 1px; background: var(--mist); margin: 0.7rem 0; }
+
+        .preview-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+        .preview-table thead th { background: var(--teal); color: white; padding: 0.4rem 0.5rem; text-align: left; font-weight: 500; letter-spacing: 0.06em; font-size: 0.6rem; }
+        .preview-table thead th.period-col { text-align: center; background: var(--teal-light); }
+        .preview-table thead th.prom-col { text-align: center; background: var(--gold); color: var(--ink); }
+        .preview-table tbody tr { border-bottom: 1px solid #f0ede8; }
+        .preview-table tbody tr:nth-child(even) { background: #fdfaf5; }
+        .preview-table td { padding: 0.35rem 0.5rem; }
+        .preview-table td.p-center { text-align: center; color: #555; }
+        .preview-table td.p-prom { text-align: center; font-weight: 700; color: var(--teal); background: rgba(184,146,42,0.07); }
+
+        .doc-total-row { display: flex; justify-content: space-between; align-items: center; background: var(--ink); color: white; padding: 0.6rem 0.8rem; margin-top: 0.8rem; }
+        .doc-total-label { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+        .doc-total-val { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold-light); }
+
+        .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: var(--cream); padding: 0.75rem 1.5rem; font-size: 0.82rem; font-weight: 500; z-index: 9999; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.warning { background: var(--rust); }
+
+        .nav-logo-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .preview-panel { display: none; }
+            .form-panel { padding: 1.5rem; }
+            nav { padding: 1rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">Plan<span>Horas</span></a>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <div class="nav-actions">
+                <button class="btn" onclick="resetForm()">Limpiar</button>
+                <button class="btn gold" onclick="loadDefaults()">Cargar ejemplo</button>
+                <button class="btn primary" onclick="imprimirBoletin()">🖨 Imprimir / PDF</button>
+            </div>
+            <div class="nav-logo-container">
+                <img src="/static/logo.png" alt="Colegio Gonzalo Rivera Laguado">
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <div class="form-panel">
+            <div class="panel-header">
+                <div class="eyebrow">Nuevo Boletín</div>
+                <h1>Control de Horas<br>por Asignatura</h1>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title"><span class="num">1</span> Datos del Curso</div>
+                <div class="form-grid">
+                    <div class="field span-2">
+                        <label>Curso / Grado</label>
+                        <input type="text" id="programa" placeholder="Ej. Jardin-01" oninput="updatePreview()">
+                    </div>
+                    <div class="field">
+                        <label>Docente Responsable</label>
+                        <input type="text" id="responsable" placeholder="Ej. Coordinadora Académica" oninput="updatePreview()">
+                    </div>
+                    <div class="field">
+                        <label>Año Académico</label>
+                        <input type="text" id="anio" value="2024-2025" oninput="updatePreview()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title"><span class="num">2</span> Períodos Académicos</div>
+                <div class="periods-config">
+                    <label>Número de períodos:</label>
+                    <input type="number" id="num-periodos" class="period-count-input" value="3" min="1" max="8" onchange="renderPeriodNames()">
+                    <span style="font-size:0.75rem;color:#888;">(máx. 8)</span>
+                </div>
+                <div class="period-names-row" id="period-names-row"></div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title"><span class="num">3</span> Registro de Horas por Asignatura</div>
+                <div class="subjects-toolbar">
+                    <button class="btn" onclick="addSubject()">+ Añadir asignatura</button>
+                </div>
+                <div class="table-scroll">
+                    <table class="subjects-table">
+                        <thead>
+                            <tr id="table-head-row">
+                                <th style="width:28px">#</th>
+                                <th style="min-width:150px">Asignatura</th>
+                                <th style="min-width:120px">Docente</th>
+                                <th class="prom-th">Promedio</th>
+                                <th style="width:30px"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjects-body"></tbody>
+                    </table>
+                </div>
+                <div class="subjects-footer">
+                    <span class="total-label">Promedio general del plan</span>
+                    <span class="total-prom" id="promedio-general">— h/período</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title"><span class="num">4</span> Observaciones</div>
+                <div class="form-grid full">
+                    <div class="field">
+                        <label>Observaciones generales (opcional)</label>
+                        <textarea id="observaciones" placeholder="Notas, aclaraciones o comentarios sobre el período..." oninput="updatePreview()"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="preview-header">
+                <span class="preview-title">Vista previa en tiempo real</span>
+                <div class="live-dot"></div>
+            </div>
+            <div class="preview-content">
+                <div id="doc-preview">
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <p>Completa los datos del formulario<br>para ver la vista previa aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let subjects = [];
+        let subjectCounter = 0;
+        let periods = [];
+
+        function init() {
+            renderPeriodNames();
+            addSubject();
+            addSubject();
+            addSubject();
+        }
+
+        function renderPeriodNames() {
+            const n = parseInt(document.getElementById('num-periodos').value) || 1;
+            const container = document.getElementById('period-names-row');
+            const existingNames = periods.map(p => p.name);
+            periods = [];
+            for (let i = 0; i < n; i++) {
+                periods.push({ name: existingNames[i] || `Período ${i + 1}` });
+            }
+            container.innerHTML = '';
+            periods.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'period-name-field';
+                div.innerHTML = `
+                    <label>Período ${i + 1}</label>
+                    <input type="text" value="${p.name}"
+                           oninput="updatePeriodName(${i}, this.value)"
+                           placeholder="Nombre del período">
+                `;
+                container.appendChild(div);
+            });
+            subjects.forEach(s => {
+                while (s.horas.length < n) s.horas.push('');
+                s.horas = s.horas.slice(0, n);
+            });
+            renderTableHead();
+            renderSubjectsTable();
+            updatePreview();
+        }
+
+        function updatePeriodName(i, val) {
+            periods[i].name = val;
+            renderTableHead();
+            updatePreview();
+        }
+
+        function renderTableHead() {
+            const row = document.getElementById('table-head-row');
+            row.querySelectorAll('.period-th').forEach(th => th.remove());
+            const promTh = row.querySelector('.prom-th');
+            periods.forEach((p) => {
+                const th = document.createElement('th');
+                th.className = 'period-th';
+                th.textContent = p.name;
+                row.insertBefore(th, promTh);
+            });
+        }
+
+        function addSubject() {
+            const n = periods.length || parseInt(document.getElementById('num-periodos').value) || 3;
+            subjects.push({
+                id: ++subjectCounter,
+                name: '',
+                teacher: '',
+                horas: Array(n).fill('')
+            });
+            renderSubjectsTable();
+            updatePreview();
+        }
+
+        function removeSubject(id) {
+            subjects = subjects.filter(s => s.id !== id);
+            renderSubjectsTable();
+            updatePreview();
+        }
+
+        function renderSubjectsTable() {
+            const tbody = document.getElementById('subjects-body');
+            tbody.innerHTML = '';
+            subjects.forEach((s, idx) => {
+                const tr = document.createElement('tr');
+                let horasCols = '';
+                s.horas.forEach((h, pi) => {
+                    horasCols += `
+                        <td style="padding:0.3rem;">
+                            <input type="number" placeholder="0" value="${h}" min="0" max="9999"
+                                   class="hours-input"
+                                   oninput="updateSubjectHoras(${s.id}, ${pi}, this.value)">
+                        </td>
+                    `;
+                });
+                const prom = calcProm(s.horas);
+                const promDisplay = prom !== null ? prom.toFixed(1) + 'h' : '—';
+                tr.innerHTML = `
+                    <td class="td-num">${idx + 1}</td>
+                    <td>
+                        <input type="text" placeholder="Nombre de la asignatura"
+                               value="${s.name}"
+                               oninput="updateSubject(${s.id}, 'name', this.value)"
+                               style="min-width:130px;">
+                    </td>
+                    <td>
+                        <input type="text" placeholder="Docente responsable"
+                               value="${s.teacher}"
+                               oninput="updateSubject(${s.id}, 'teacher', this.value)"
+                               style="min-width:110px;">
+                    </td>
+                    ${horasCols}
+                    <td class="prom-cell" id="prom-${s.id}">${promDisplay}</td>
+                    <td><button class="btn-delete" onclick="removeSubject(${s.id})" title="Eliminar">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateSubject(id, field, value) {
+            const s = subjects.find(s => s.id === id);
+            if (s) { s[field] = value; updatePreview(); }
+        }
+
+        function updateSubjectHoras(id, periodoIdx, value) {
+            const s = subjects.find(s => s.id === id);
+            if (s) {
+                s.horas[periodoIdx] = value;
+                const prom = calcProm(s.horas);
+                const cell = document.getElementById(`prom-${id}`);
+                if (cell) cell.textContent = prom !== null ? prom.toFixed(1) + 'h' : '—';
+                updatePromedioGeneral();
+                updatePreview();
+            }
+        }
+
+        function calcProm(horasArr) {
+            const vals = horasArr.map(h => parseFloat(h)).filter(h => !isNaN(h) && h !== '');
+            if (vals.length === 0) return null;
+            return vals.reduce((a, b) => a + b, 0) / vals.length;
+        }
+
+        function updatePromedioGeneral() {
+            const proms = subjects.map(s => calcProm(s.horas)).filter(p => p !== null);
+            const el = document.getElementById('promedio-general');
+            if (proms.length === 0) {
+                el.textContent = '— h/período';
+            } else {
+                const general = proms.reduce((a, b) => a + b, 0) / proms.length;
+                el.textContent = general.toFixed(1) + 'h / período';
+            }
+        }
+
+        function getFormData() {
+            return {
+                institucion: 'Colegio Gonzalo Rivera Laguado',
+                programa: document.getElementById('programa').value,
+                responsable: document.getElementById('responsable').value,
+                anio: document.getElementById('anio').value,
+                observaciones: document.getElementById('observaciones').value,
+                periodos: periods.map(p => p.name),
+                asignaturas: subjects.filter(s => s.name.trim()).map(s => ({
+                    name: s.name,
+                    teacher: s.teacher,
+                    horas: s.horas
+                }))
+            };
+        }
+
+        function updatePreview() {
+            updatePromedioGeneral();
+            const data = getFormData();
+            const container = document.getElementById('doc-preview');
+
+            if (!data.institucion && data.asignaturas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <p>Completa los datos del formulario<br>para ver la vista previa aquí</p>
+                    </div>`;
+                return;
+            }
+
+            const periodHeaders = data.periodos.map(p =>
+                `<th class="period-col" style="text-align:center;min-width:50px;">${p}</th>`
+            ).join('');
+
+            const subjectsRows = data.asignaturas.length > 0
+                ? data.asignaturas.map(s => {
+                    const periodCols = s.horas.map(h => {
+                        const v = parseFloat(h);
+                        return `<td class="p-center">${(!isNaN(v) && h !== '') ? v + 'h' : '—'}</td>`;
+                    }).join('');
+                    const prom = calcProm(s.horas);
+                    const promStr = prom !== null ? prom.toFixed(1) + 'h' : '—';
+                    return `<tr>
+                        <td>${s.name || '—'}</td>
+                        <td style="font-size:0.6rem;color:#777;">${s.teacher || '—'}</td>
+                        ${periodCols}
+                        <td class="p-prom">${promStr}</td>
+                    </tr>`;
+                }).join('')
+                : `<tr><td colspan="${2 + data.periodos.length + 1}" style="text-align:center;color:#bbb;padding:1rem;font-size:0.72rem;">Sin asignaturas añadidas</td></tr>`;
+
+            const proms = data.asignaturas.map(s => calcProm(s.horas)).filter(p => p !== null);
+            const promGeneral = proms.length > 0
+                ? (proms.reduce((a, b) => a + b, 0) / proms.length).toFixed(1) + 'h'
+                : '—';
+
+            const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            container.innerHTML = `
+                <div class="doc-sheet">
+                    <div class="doc-sheet-header">
+                        <div>
+                            <div class="doc-inst">${data.institucion || 'Nombre de la Institución'}</div>
+                            <div class="doc-period">Control de Horas · ${data.anio || '—'}</div>
+                        </div>
+                        <div class="doc-badge">${data.periodos.length} período${data.periodos.length !== 1 ? 's' : ''}</div>
+                    </div>
+                    ${data.programa ? `<div class="doc-prog-strip">${data.programa}</div>` : ''}
+                    <div class="doc-sheet-body">
+                        <div class="doc-meta">
+                            ${data.responsable ? `<div class="doc-meta-item"><label>Responsable</label><div class="val">${data.responsable}</div></div>` : ''}
+                            <div class="doc-meta-item"><label>Año Académico</label><div class="val">${data.anio || '—'}</div></div>
+                            <div class="doc-meta-item" style="margin-left:auto;"><label>Emitido</label><div class="val">${today}</div></div>
+                        </div>
+                        <div class="doc-divider"></div>
+                        <table class="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Asignatura</th>
+                                    <th>Docente</th>
+                                    ${periodHeaders}
+                                    <th class="prom-col">Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody>${subjectsRows}</tbody>
+                        </table>
+                        <div class="doc-total-row">
+                            <span class="doc-total-label">Promedio General del Plan de Estudios</span>
+                            <span class="doc-total-val">${promGeneral} / período</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function loadDefaults() {
+            document.getElementById('programa').value = 'Jardin-01';
+            document.getElementById('responsable').value = 'Coordinación Académica';
+            document.getElementById('anio').value = '2024-2025';
+            document.getElementById('num-periodos').value = '3';
+            periods = [
+                { name: '1er Período' },
+                { name: '2do Período' },
+                { name: '3er Período' }
+            ];
+            document.getElementById('period-names-row').innerHTML = '';
+            periods.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'period-name-field';
+                div.innerHTML = `
+                    <label>Período ${i + 1}</label>
+                    <input type="text" value="${p.name}"
+                           oninput="updatePeriodName(${i}, this.value)"
+                           placeholder="Nombre del período">
+                `;
+                document.getElementById('period-names-row').appendChild(div);
+            });
+            subjects = [];
+            subjectCounter = 0;
+            const defaults = [
+                { name: 'Matemáticas', teacher: 'Prof. García', horas: ['40', '38', '42'] },
+                { name: 'Lengua Española', teacher: 'Prof. Martínez', horas: ['36', '36', '38'] },
+                { name: 'Ciencias Naturales', teacher: 'Prof. López', horas: ['32', '30', '34'] },
+                { name: 'Historia y Geografía', teacher: 'Prof. Rodríguez', horas: ['28', '30', '28'] },
+                { name: 'Inglés', teacher: 'Prof. Wilson', horas: ['24', '24', '26'] },
+                { name: 'Educación Artística', teacher: 'Prof. Vega', horas: ['16', '18', '16'] },
+            ];
+            defaults.forEach(d => {
+                subjects.push({ id: ++subjectCounter, name: d.name, teacher: d.teacher, horas: d.horas });
+            });
+            renderTableHead();
+            renderSubjectsTable();
+            updatePreview();
+            showToast('✓ Datos de ejemplo cargados', 'success');
+        }
+
+        function resetForm() {
+            if (!confirm('¿Seguro que quieres limpiar todos los datos?')) return;
+            document.getElementById('programa').value = '';
+            document.getElementById('responsable').value = '';
+            document.getElementById('anio').value = '2024-2025';
+            document.getElementById('observaciones').value = '';
+            document.getElementById('num-periodos').value = '3';
+            subjects = [];
+            subjectCounter = 0;
+            periods = [{ name: 'Período 1' }, { name: 'Período 2' }, { name: 'Período 3' }];
+            renderTableHead();
+            addSubject(); addSubject(); addSubject();
+            updatePreview();
+            showToast('Formulario limpiado', 'success');
+        }
+
+        // ── CORRECCIÓN PRINCIPAL ──────────────────────────────────────────────
+        // Genera el HTML del boletín directamente en JS, sin necesitar Flask.
+        // Si Flask está corriendo, usa el servidor; si no, genera localmente.
+        async function imprimirBoletin() {
+            const data = getFormData();
+            if (!data.institucion) {
+                showToast('⚠ Completa al menos el nombre de la institución', 'warning');
+                return;
+            }
+            if (data.asignaturas.length === 0) {
+                showToast('⚠ Añade al menos una asignatura', 'warning');
+                return;
+            }
+
+            // Calcular promedios en JS (misma lógica que Flask)
+            const asignaturas = data.asignaturas.map(s => {
+                const vals = s.horas.map(h => parseFloat(h)).filter(h => !isNaN(h) && h !== '');
+                const promedio = vals.length > 0 ? Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10 : 0;
+                const total = vals.length > 0 ? Math.round(vals.reduce((a,b)=>a+b,0) * 10) / 10 : 0;
+                return { ...s, promedio, total };
+            });
+
+            const todosPromedios = asignaturas.filter(a => a.promedio > 0).map(a => a.promedio);
+            const promedioGeneral = todosPromedios.length > 0
+                ? Math.round((todosPromedios.reduce((a,b)=>a+b,0) / todosPromedios.length) * 10) / 10
+                : 0;
+            const totalHorasGlobal = asignaturas.reduce((acc, a) => acc + a.total, 0);
+
+            const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            const maxProm = asignaturas.length > 0 ? Math.max(...asignaturas.map(a => a.promedio)) : 0;
+            const totalProm = asignaturas.reduce((acc, a) => acc + a.promedio, 0);
+            const asigMayorCarga = asignaturas.find(a => a.promedio === maxProm);
+
+            // Construir filas de la tabla
+            const periodoHeaders = data.periodos.map(p =>
+                `<th class="th-period">${p}</th>`
+            ).join('');
+
+            const filasTabla = asignaturas.length > 0
+                ? asignaturas.map((s, idx) => {
+                    const horasCols = s.horas.map(h => {
+                        const v = parseFloat(h);
+                        return `<td class="td-hours">${(!isNaN(v) && h !== '') ? v + 'h' : '—'}</td>`;
+                    }).join('');
+                    return `<tr>
+                        <td class="td-num">${idx + 1}</td>
+                        <td class="td-subject">${s.name}</td>
+                        <td class="td-teacher">${s.teacher || '—'}</td>
+                        ${horasCols}
+                        <td class="td-prom">${s.promedio}h</td>
+                    </tr>`;
+                }).join('')
+                : `<tr><td colspan="${3 + data.periodos.length + 1}" style="text-align:center;color:#bbb;padding:1.5rem;font-size:9pt;">Sin asignaturas registradas</td></tr>`;
+
+            // Distribución de horas
+            let distribucionHTML = '';
+            if (asignaturas.length > 1 && maxProm > 0) {
+                distribucionHTML = `
+                <div class="distribution-section">
+                    <div class="dist-title">Distribución de Horas Promedio por Asignatura</div>
+                    ${asignaturas.map(s => {
+                        const barW = maxProm > 0 ? (s.promedio / maxProm * 100) : 0;
+                        const pct = totalProm > 0 ? Math.round((s.promedio / totalProm) * 1000) / 10 : 0;
+                        return `<div class="dist-item">
+                            <span class="dist-name">${s.name}</span>
+                            <div class="dist-track"><div class="dist-fill" style="width:${barW}%"></div></div>
+                            <span class="dist-val">${s.promedio}h</span>
+                            <span class="dist-pct">${pct}%</span>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            }
+
+            const observacionesHTML = data.observaciones ? `
+                <div class="obs-section">
+                    <div class="obs-box">
+                        <div class="obs-label">Observaciones</div>
+                        <div class="obs-text">${data.observaciones}</div>
+                    </div>
+                </div>` : '';
+
+            const programaStrip = data.programa
+                ? `<div class="programa-strip">${data.programa}</div>` : '';
+
+            const responsableInfo = data.responsable
+                ? `<div class="info-field">
+                    <div class="info-label">Responsable</div>
+                    <div class="info-value">${data.responsable}</div>
+                   </div>` : '';
+
+            const statsHTML = asignaturas.length > 0 ? `
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-box-label">Total de Asignaturas</div>
+                        <div class="stat-box-value">${asignaturas.length}</div>
+                        <div class="stat-box-sub">Registradas en el plan</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Total de Períodos</div>
+                        <div class="stat-box-value">${data.periodos.length}</div>
+                        <div class="stat-box-sub">Períodos evaluados</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Promedio General</div>
+                        <div class="stat-box-value">${promedioGeneral}h</div>
+                        <div class="stat-box-sub">Horas por período</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Mayor Carga Horaria</div>
+                        <div class="stat-box-value">${maxProm}h</div>
+                        <div class="stat-box-sub">${asigMayorCarga ? asigMayorCarga.name : '—'}</div>
+                    </div>
+                </div>
+                ${distribucionHTML}` : '';
+
+            const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín de Horas — ${data.institucion}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', 'Segoe UI', sans-serif; background: white; color: #0d1117; font-size: 10.5pt; }
+        @page { size: A4; margin: 1.5cm 1.8cm; }
+        @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } .no-print { display: none !important; } }
+        .page { width: 100%; max-width: 21cm; margin: 0 auto; background: white; }
+        .doc-header { display: flex; justify-content: space-between; align-items: stretch; background: #1a4a4a; color: white; }
+        .header-main { padding: 1.4rem 2rem; flex: 1; }
+        .header-inst { font-family: 'Cormorant Garamond', serif; font-size: 20pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+        .header-sub { font-size: 7.5pt; opacity: 0.5; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.3rem; }
+        .header-badge { display: flex; flex-direction: column; justify-content: center; align-items: center; background: #b8922a; color: #0d1117; padding: 1rem 1.6rem; min-width: 110px; text-align: center; }
+        .badge-label { font-size: 6.5pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.3rem; opacity: 0.8; }
+        .badge-year { font-family: 'Cormorant Garamond', serif; font-size: 13pt; font-weight: 700; line-height: 1.2; }
+        .header-logo { width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; background: white; }
+        .header-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .programa-strip { background: #e8d5a3; padding: 0.55rem 2rem; font-size: 7.5pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #1a4a4a; border-bottom: 2px solid #0d1117; }
+        .info-row { display: flex; gap: 2.5rem; padding: 0.7rem 2rem; background: #f8f4ee; border-bottom: 1px solid #e4dfd6; }
+        .info-field { display: flex; flex-direction: column; gap: 0.1rem; }
+        .info-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.14em; color: #999; font-weight: 500; }
+        .info-value { font-size: 10pt; font-weight: 500; color: #0d1117; }
+        .title-bar { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 2rem; background: white; border-bottom: 1px solid #e4dfd6; }
+        .title-main { font-family: 'Cormorant Garamond', serif; font-size: 12.5pt; font-weight: 700; color: #0d1117; }
+        .title-date { font-size: 7.5pt; color: #aaa; letter-spacing: 0.06em; }
+        .content-area { padding: 1.2rem 2rem; }
+        .section-label { font-size: 6.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: #999; margin-bottom: 0.5rem; }
+        table.hours-table { width: 100%; border-collapse: collapse; }
+        .hours-table thead tr { background: #1a4a4a; }
+        .hours-table thead th { color: white; font-size: 7pt; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.55rem 0.8rem; text-align: left; }
+        .hours-table thead th.th-period { text-align: center; background: #2d7070; min-width: 65px; }
+        .hours-table thead th.th-prom { text-align: center; background: #b8922a; color: #0d1117; min-width: 65px; }
+        .hours-table thead th.th-num { width: 28px; text-align: center; }
+        .hours-table tbody tr { border-bottom: 1px solid #ece8e0; }
+        .hours-table tbody tr:nth-child(even) { background: #fdfaf5; }
+        .hours-table tbody tr:last-child { border-bottom: none; }
+        .hours-table td { padding: 0.55rem 0.8rem; font-size: 9.5pt; vertical-align: middle; }
+        .td-num { color: #ccc; font-size: 7.5pt; text-align: center; }
+        .td-subject { font-weight: 400; }
+        .td-teacher { color: #777; font-size: 8.5pt; }
+        .td-hours { text-align: center; color: #444; }
+        .td-prom { text-align: center; font-weight: 700; font-size: 10pt; color: #1a4a4a; background: rgba(184,146,42,0.08); }
+        .total-row { background: #0d1117; color: white; display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 0.8rem 0.9rem 2.2rem; margin-top: 0.8rem; }
+        .total-label { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.7; }
+        .total-value { font-family: 'Cormorant Garamond', serif; font-size: 16pt; font-weight: 700; color: #e8d5a3; line-height: 1; }
+        .total-value span { font-size: 9pt; opacity: 0.7; font-family: 'Outfit', sans-serif; font-weight: 300; margin-left: 0.3rem; }
+        .stats-row { display: flex; gap: 0; margin-top: 1rem; border: 1px solid #e4dfd6; }
+        .stat-box { flex: 1; padding: 0.9rem 1.2rem; border-right: 1px solid #e4dfd6; text-align: center; }
+        .stat-box:last-child { border-right: none; }
+        .stat-box-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.12em; color: #999; font-weight: 600; margin-bottom: 0.3rem; }
+        .stat-box-value { font-family: 'Cormorant Garamond', serif; font-size: 18pt; font-weight: 700; color: #1a4a4a; line-height: 1; }
+        .stat-box-sub { font-size: 7pt; color: #aaa; margin-top: 0.2rem; }
+        .distribution-section { margin-top: 1.2rem; padding-top: 0.8rem; border-top: 1px solid #e4dfd6; }
+        .dist-title { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.14em; color: #aaa; font-weight: 600; margin-bottom: 0.6rem; }
+        .dist-item { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+        .dist-name { font-size: 8.5pt; width: 130px; flex-shrink: 0; color: #444; }
+        .dist-track { flex: 1; height: 6px; background: #ece8e0; border-radius: 3px; overflow: hidden; }
+        .dist-fill { height: 100%; background: #1a4a4a; border-radius: 3px; }
+        .dist-val { font-size: 8.5pt; font-weight: 600; color: #1a4a4a; width: 35px; text-align: right; flex-shrink: 0; }
+        .dist-pct { font-size: 7.5pt; color: #aaa; width: 35px; text-align: right; flex-shrink: 0; }
+        .obs-section { margin-top: 1rem; }
+        .obs-box { background: #f8f4ee; border-left: 3px solid #1a4a4a; padding: 0.8rem 1rem; }
+        .obs-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.14em; color: #1a4a4a; font-weight: 600; margin-bottom: 0.3rem; }
+        .obs-text { font-size: 9pt; color: #444; line-height: 1.6; }
+        .signatures { display: flex; justify-content: space-between; margin-top: 2.5rem; page-break-inside: avoid; }
+        .sig-block { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; flex: 1; }
+        .sig-space { height: 1.8cm; }
+        .sig-line { width: 100%; max-width: 130px; height: 1px; background: #0d1117; }
+        .sig-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.12em; color: #777; text-align: center; }
+        .doc-footer { margin-top: 1.5rem; padding-top: 0.6rem; border-top: 1px solid #e4dfd6; display: flex; justify-content: space-between; align-items: center; }
+        .footer-text { font-size: 6.5pt; color: #bbb; letter-spacing: 0.06em; }
+        .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 8pt; font-weight: 700; color: #ccc; }
+        .footer-logo span { color: #b8922a; }
+        .print-btn-wrap { text-align: center; padding: 2rem; background: #f8f4ee; }
+        .print-btn { padding: 0.9rem 3rem; background: #1a4a4a; color: white; border: none; font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+        .print-btn:hover { background: #2d7070; }
+    </style>
+</head>
+<body>
+    <div class="no-print print-btn-wrap">
+        <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+
+    <div class="page">
+        <div class="doc-header">
+            <div class="header-main">
+                <div class="header-inst">${data.institucion || 'Institución Educativa'}</div>
+                <div class="header-sub">Boletín Oficial · Control de Horas por Asignatura</div>
+            </div>
+            <div style="display: flex; gap: 0;">
+                <div class="header-logo">
+                    <img src="/static/logo.png" alt="Logo" style="width:80px;">
+                </div>
+                <div class="header-badge">
+                    <div class="badge-label">Plan de Horas</div>
+                    <div class="badge-year">${data.anio}</div>
+                </div>
+            </div>
+        </div>
+
+        ${programaStrip}
+
+        <div class="info-row">
+            ${responsableInfo}
+            <div class="info-field">
+                <div class="info-label">Año Académico</div>
+                <div class="info-value">${data.anio}</div>
+            </div>
+            <div class="info-field">
+                <div class="info-label">N° de Períodos</div>
+                <div class="info-value">${data.periodos.length}</div>
+            </div>
+            <div class="info-field" style="margin-left:auto;">
+                <div class="info-label">Promedio General</div>
+                <div class="info-value" style="color:#1a4a4a;font-weight:700;">${promedioGeneral}h / período</div>
+            </div>
+        </div>
+
+        <div class="title-bar">
+            <div class="title-main">Registro de Horas por Asignatura</div>
+            <div class="title-date">Emitido el ${today}</div>
+        </div>
+
+        <div class="content-area">
+            <div class="section-label">Detalle por Asignatura · Período</div>
+            <table class="hours-table">
+                <thead>
+                    <tr>
+                        <th class="th-num">#</th>
+                        <th>Asignatura</th>
+                        <th>Docente</th>
+                        ${periodoHeaders}
+                        <th class="th-prom">Promedio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${filasTabla}
+                </tbody>
+            </table>
+
+            <div class="total-row">
+                <span class="total-label">Promedio General del Plan de Estudios</span>
+                <span class="total-value">${promedioGeneral}<span>horas / período</span></span>
+            </div>
+
+            ${statsHTML}
+            ${observacionesHTML}
+
+            <div class="signatures">
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Director / Directora</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Coordinador/a Académico/a</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-space"></div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Visto Bueno Institucional</div>
+                </div>
+            </div>
+
+            <div class="doc-footer">
+                <span class="footer-text">${data.institucion} · ${data.programa || 'Plan de Estudios'} · Año ${data.anio} · Emitido ${today}</span>
+                <span class="footer-logo">Plan<span>Horas</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="no-print print-btn-wrap" style="padding-top:0;padding-bottom:3rem;">
+        <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+</body>
+</html>`;
+
+            // Abrir en nueva pestaña directamente (sin fetch al servidor)
+            const w = window.open('', '_blank');
+            if (!w) {
+                showToast('⚠ Permite las ventanas emergentes para imprimir', 'warning');
+                return;
+            }
+            w.document.open();
+            w.document.write(html);
+            w.document.close();
+            // Esperar a que carguen las fuentes antes de imprimir
+            setTimeout(() => { w.print(); }, 800);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
